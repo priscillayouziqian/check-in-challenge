@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Ale
 import ChallengeForm from '../features/challenges/components/ChallengeForm';
 import { calculateEndDate, formatDate } from '../features/challenges/utils/dateUtils';
 
-const NewChallengeScreen = ({ route, navigation }) => {
+// add props-onChallengeCreate which passed from App.js, to update the global challenge state to add new challenges to the list
+const NewChallengeScreen = ({ route, navigation, onChallengeCreate }) => {
+
   const [challengeName, setChallengeName] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(calculateEndDate(new Date()));
@@ -45,6 +47,7 @@ const NewChallengeScreen = ({ route, navigation }) => {
       ? { type, challengeName, startDate, endDate }
       : { type, challengeName, totalHours: 100 };
     
+    onChallengeCreate(challengeData);
     showSuccessAlert(challengeData);
   };
 

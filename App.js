@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -11,6 +11,13 @@ import config from './tamagui.config'
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [challenges, setChallenges] = useState([]);
+
+  const addChallenge = (newChallenge) => {
+    // new state depends on the previous state. so spread operator to create a new array with update value, instead of modifying the existing one.
+    setChallenges(prevChallenges => [...prevChallenges, newChallenge]);
+  };
+
   return (
     <TamaguiProvider config={config}>
       <Theme name="light">
@@ -31,14 +38,20 @@ export default function App() {
           >
             <Drawer.Screen 
               name="Home" 
-              component={HomeScreen}
+              // make sure all navigation-related props will pass down to HomeScreen(navigate, goBack ...) ---> {...props}
+              component={props => <HomeScreen {...props} challenges={challenges} />} 
               options={{
                 title: 'Challenge Home',
               }}
             />
             <Drawer.Screen 
               name="NewChallenge" 
-              component={NewChallengeScreen}
+              component={props => (
+                <NewChallengeScreen 
+                  {...props} 
+                  onChallengeCreate={addChallenge}
+                />
+              )}
               options={({ route, navigation }) => ({ 
                 title: route.params?.type === 'hours' ? '100 Hours Challenge' : '100 Days Challenge',
                 drawerItemStyle: styles.hiddenDrawerItem,

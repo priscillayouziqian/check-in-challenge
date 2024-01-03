@@ -1,38 +1,47 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ChallengeCard from '../features/challenges/components/ChallengeCard';
 
-const HomeScreen = () => {
+const HomeScreen = ({ challenges = [] }) => {
   const navigation = useNavigation();
 
   const handleChallengePress = (challengeType) => {
-    //check https://reactnavigation.org/docs/params for reference: passing params to routes
-    //navigate method goes to 'NewChallenge' screen, and pass an object with a property type which set to the value of challengeType
-    navigation.navigate('NewChallenge', { 
-        type: challengeType 
-    });
+    navigation.navigate('NewChallenge', { type: challengeType });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Accept Your Challenge</Text>
-       {/* two buttons for different challenge types. When clicks, goes to NewChallengeScreen with type params*/}
-      <TouchableOpacity
-        style={[styles.challengeButton, styles.daysButton]}
-        onPress={() => handleChallengePress('days')}
-      >
-        <Text style={styles.buttonTitle}>100 Days Challenge</Text>
-        <Text style={styles.buttonSubtitle}>Change your life one day at a time</Text>
-      </TouchableOpacity>
+    <ScrollView style={styles.container}>
+      <View style={styles.buttonsSection}>
+        <Text style={styles.title}>Accept Your Challenge</Text>
+        
+        <TouchableOpacity
+          style={[styles.challengeButton, styles.daysButton]}
+          onPress={() => handleChallengePress('days')}
+        >
+          <Text style={styles.buttonTitle}>100 Days Challenge</Text>
+          <Text style={styles.buttonSubtitle}>Change your life one day at a time</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.challengeButton, styles.hoursButton]}
-        onPress={() => handleChallengePress('hours')}
-      >
-        <Text style={styles.buttonTitle}>100 Hours Challenge</Text>
-        <Text style={styles.buttonSubtitle}>Master a skill via focused practice</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[styles.challengeButton, styles.hoursButton]}
+          onPress={() => handleChallengePress('hours')}
+        >
+          <Text style={styles.buttonTitle}>100 Hours Challenge</Text>
+          <Text style={styles.buttonSubtitle}>Master a skill via focused practice</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* scrollable section to display existing challenge. JSX with .map*/}
+      {challenges.length > 0 && (
+        <View style={styles.challengesSection}>
+          <Text style={styles.sectionTitle}>Check-in Challenge</Text>
+          {challenges.map((challenge, index) => (
+            <ChallengeCard key={index} challenge={challenge} />
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 };
 
@@ -40,8 +49,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  buttonsSection: {
     padding: 20,
-    justifyContent: 'center',
+  },
+  challengesSection: {
+    padding: 20,
+    paddingTop: 0,
   },
   title: {
     fontSize: 28,
@@ -49,6 +63,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 40,
     color: '#333',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
   },
   challengeButton: {
     padding: 20,
