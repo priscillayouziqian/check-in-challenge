@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
 import ChallengeForm from '../features/challenges/components/ChallengeForm';
-import { calculateEndDate } from '../features/challenges/utils/dateUtils';
+import { calculateEndDate, formatDate } from '../features/challenges/utils/dateUtils';
 
-const NewChallengeScreen = ({ route }) => {
+const NewChallengeScreen = ({ route, navigation }) => {
   const [challengeName, setChallengeName] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(calculateEndDate(new Date()));
@@ -14,11 +14,73 @@ const NewChallengeScreen = ({ route }) => {
     setEndDate(calculateEndDate(startDate));
   }, [startDate]);
 
-  const handleStartChallenge = () => {
-    const challengeData = type === 'days' 
+  // reset form data
+  const resetForm = () => {
+    setChallengeName('');
+    setStartDate(new Date());
+    setEndDate(calculateEndDate(new Date()));
+  };
+
+  // show success alert and navigate back to home page
+  const showSuccessAlert = (challengeData) => {
+    Alert.alert(
+      "Success!", 
+      "Your challenge has been created.", 
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            console.log("Challenge created:", challengeData);
+            resetForm(); // Reset form before navigation
+            navigation.navigate("Home");
+          }
+        }
+      ]
+    );
+  };
+
+  // create a new challenge
+  const createChallenge = () => {
+    const challengeData = type === 'days'
       ? { type, challengeName, startDate, endDate }
       : { type, challengeName, totalHours: 100 };
-    console.log('Creating challenge:', challengeData);
+    
+    showSuccessAlert(challengeData);
+  };
+
+  const handleStartChallenge = () => {
+    // Validate challenge name
+    if (!challengeName.trim()) {
+      Alert.alert(
+        "Missing Information",
+        "Please enter a challenge name",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Show confirmation alert
+    Alert.alert(
+      "Challenge Details",
+      `Please confirm your challenge details:
+      
+Type: ${type === 'days' ? '100 Days' : '100 Hours'} Challenge
+Name: ${challengeName}${type === 'days' ? `
+Start Date: ${formatDate(startDate)}
+End Date: ${formatDate(endDate)}` : ''}`,
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log(challengeName + ' - Creation cancelled'),
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: createChallenge
+        },
+      ],
+      { cancelable: false } //Android only
+    );
   };
 
   return (
