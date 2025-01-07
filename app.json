@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "check-in-challenge",
+    "slug": "check-in-challenge",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
