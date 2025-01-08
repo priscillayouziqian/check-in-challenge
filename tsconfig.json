@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "tamagui": ["./node_modules/tamagui"]
+    }
+  },
+  "extends": "expo/tsconfig.base"
+}
