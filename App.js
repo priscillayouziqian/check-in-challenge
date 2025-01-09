@@ -14,6 +14,9 @@ export default function App() {
   return (
     <TamaguiProvider config={config}>
       <Theme name="light">
+         {/*below set up navigation structure: 
+            NavigationContainer > Drawer.Navigator > two Drawers (Home and NewChallenge)
+         */}
         <NavigationContainer>
           <Drawer.Navigator
             initialRouteName="Home"

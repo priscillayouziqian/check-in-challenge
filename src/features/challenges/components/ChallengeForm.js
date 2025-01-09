@@ -5,6 +5,7 @@ import HoursChallenge from './HoursChallenge';
 import SubmitButton from './SubmitButton';
 
 const ChallengeForm = ({ 
+    //descrtructe all props for easy access
   type, 
   challengeName, 
   setChallengeName, 
@@ -23,7 +24,7 @@ const ChallengeForm = ({
         placeholder="Enter challenge name"
         placeholderTextColor="#999"
       />
-
+      {/* condition check, DaysChallenge or HoursChallenge */}
       {type === 'days' ? (
         <DaysChallenge 
           startDate={startDate}

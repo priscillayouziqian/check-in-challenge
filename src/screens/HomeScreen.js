@@ -6,13 +6,17 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   const handleChallengePress = (challengeType) => {
-    navigation.navigate('NewChallenge', { type: challengeType });
+    //check https://reactnavigation.org/docs/params for reference: passing params to routes
+    //navigate method goes to 'NewChallenge' screen, and pass an object with a property type which set to the value of challengeType
+    navigation.navigate('NewChallenge', { 
+        type: challengeType 
+    });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Accept Your Challenge</Text>
-      
+       {/* two buttons for different challenge types. When clicks, goes to NewChallengeScreen with type params*/}
       <TouchableOpacity
         style={[styles.challengeButton, styles.daysButton]}
         onPress={() => handleChallengePress('days')}

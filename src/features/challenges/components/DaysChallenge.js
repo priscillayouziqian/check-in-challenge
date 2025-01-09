@@ -7,8 +7,10 @@ const DaysChallenge = ({ startDate, setStartDate, endDate }) => {
   const [showStartPicker, setShowStartPicker] = useState(false);
 
   const onStartDateChange = (event, selectedDate) => {
+    // use || to check if no selectedDate, defalt to startDate(unchanged).
     const currentDate = selectedDate || startDate;
     if (Platform.OS === 'android') {
+        //date pickers close automatically after a date is selected.
       setShowStartPicker(false);
     }
     if (selectedDate) {
