@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { formatDate } from '../features/challenges/utils/dateUtils';
 
-const ChallengeDetailScreen = ({ route }) => {
+const ChallengeDetailScreen = ({ route, navigation }) => {
   const { challenge } = route.params;
   
+  // State to track completed days
+  const [completedDays, setCompletedDays] = useState(0);
+
+  useEffect(() => {
+    // Calculate completed days based on the challenge type and start date
+    const calculateCompletedDays = () => {
+      if (challenge.type === 'days') {
+        return Math.floor((new Date() - new Date(challenge.startDate)) / (1000 * 60 * 60 * 24));
+      } else if (challenge.type === 'hours') {
+        // Assuming hours are tracked similarly, adjust as necessary
+        return Math.floor((new Date() - new Date(challenge.startDate)) / (1000 * 60 * 60));
+      }
+      return 0;
+    };
+
+    setCompletedDays(calculateCompletedDays());
+  }, [challenge.startDate, challenge.type]);
+
   // Create array of 100 items for the progress icons
   const progressIcons = Array(100).fill(null);
   
-  // State to track completed days
-  const [completedDays, setCompletedDays] = useState(
-    challenge.type === 'days' 
-      ? Math.floor((new Date() - new Date(challenge.startDate)) / (1000 * 60 * 60 * 24))
-      : 0
-  );
-
   // Function to toggle completion status
   const toggleCompletion = (index) => {
     setCompletedDays((prevCompletedDays) => {
@@ -33,6 +44,9 @@ const ChallengeDetailScreen = ({ route }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
         <Image 
           source={require('../assets/logo.png')}
           style={styles.cartoonImage}
@@ -95,6 +109,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    position: 'relative',
   },
   cartoonImage: {
     width: 100,
@@ -149,6 +164,16 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 16,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 15,
+    top: 15,
+    padding: 8,
+  },
+  backButtonText: {
+    color: '#4A90E2',
+    fontSize: 24,
   },
 });
 
