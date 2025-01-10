@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import ChallengeCard from '../features/challenges/components/ChallengeCard';
 
-const HomeScreen = ({ challenges = [] }) => {
+const HomeScreen = () => {
   const navigation = useNavigation();
+  //access persist data from store
+  const challenges = useSelector(state => state.challenges.items);
 
   const handleChallengePress = (challengeType) => {
     navigation.navigate('NewChallenge', { type: challengeType });

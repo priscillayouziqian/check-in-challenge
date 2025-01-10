@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addChallenge } from '../features/challenges/challengesSlice';
 import ChallengeForm from '../features/challenges/components/ChallengeForm';
 import { calculateEndDate, formatDate } from '../features/challenges/utils/dateUtils';
 
-// add props-onChallengeCreate which passed from App.js, to update the global challenge state to add new challenges to the list
-const NewChallengeScreen = ({ route, navigation, onChallengeCreate }) => {
-
+const NewChallengeScreen = ({ route, navigation }) => {
+  const dispatch = useDispatch();
   const [challengeName, setChallengeName] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(calculateEndDate(new Date()));
@@ -44,10 +45,20 @@ const NewChallengeScreen = ({ route, navigation, onChallengeCreate }) => {
   // create a new challenge
   const createChallenge = () => {
     const challengeData = type === 'days'
-      ? { type, challengeName, startDate, endDate }
-      : { type, challengeName, totalHours: 100 };
-    
-    onChallengeCreate(challengeData);
+      ? { 
+          type, 
+          challengeName, 
+          // Convert dates to ISO strings before dispatching, serialize data
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        }
+      : { 
+          type, 
+          challengeName, 
+          totalHours: 100 
+        };
+    //dispatch will trigger persistence
+    dispatch(addChallenge(challengeData));
     showSuccessAlert(challengeData);
   };
 
