@@ -82,19 +82,22 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
             size={24}
           />
         </TouchableOpacity>
-        <Image 
-          source={require('../assets/logo.png')}
-          style={styles.cartoonImage}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>{challenge.challengeName}</Text>
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>
-            Start: {formatDate(new Date(challenge.startDate))}
-          </Text>
-          <Text style={styles.dateText}>
-            End: {formatDate(new Date(challenge.endDate))}
-          </Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>{challenge.challengeName}</Text>
+          <View style={styles.dateContainer}>
+            <View style={styles.dateItem}>
+              <Text style={styles.dateLabel}>Start Date</Text>
+              <Text style={styles.dateText}>
+                {formatDate(new Date(challenge.startDate))}
+              </Text>
+            </View>
+            <View style={styles.dateItem}>
+              <Text style={styles.dateLabel}>End Date</Text>
+              <Text style={styles.dateText}>
+                {formatDate(new Date(challenge.endDate))}
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
 
@@ -113,13 +116,12 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
             />
           ))}
         </View>
-        <Badge
-          value={`${challenge.completedDays}/100 ${challenge.type}`}
-          status="success"
-          containerStyle={styles.badgeContainer}
-          badgeStyle={styles.badge}
-          textStyle={styles.badgeText}
-        />
+        <View style={styles.progressBadgeContainer}>
+          <View style={styles.progressBadge}>
+            <Text style={styles.progressCount}>{challenge.completedDays}</Text>
+            <Text style={styles.progressTotal}>/100 {challenge.type}</Text>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -146,28 +148,42 @@ const styles = StyleSheet.create({
     elevation: 5,
     position: 'relative',
   },
-  cartoonImage: {
-    width: 100,
-    height: 100,
-    marginBottom: 5,
+  headerContent: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 40,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 10,
+    marginBottom: 15,
     textAlign: 'center',
   },
   dateContainer: {
     width: '100%',
     paddingHorizontal: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  dateItem: {
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: 10,
+    borderRadius: 10,
+    minWidth: 140,
+  },
+  dateLabel: {
+    fontSize: 14,
+    color: '#4A90E2',
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   dateText: {
     fontSize: 14,
-    color: '#666',
-    marginVertical: 5,
+    color: '#333',
+    fontWeight: '500',
   },
   progressContainer: {
     padding: 20,
@@ -189,16 +205,35 @@ const styles = StyleSheet.create({
   icon: {
     margin: 2,
   },
-  badgeContainer: {
-    marginTop: 10,
+  progressBadgeContainer: {
+    marginTop: 20,
     alignItems: 'center',
   },
-  badge: {
+  progressBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#4A90E2',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  badgeText: {
+  progressCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#fff',
-    fontSize: 16,
+  },
+  progressTotal: {
+    fontSize: 18,
+    color: '#fff',
+    marginLeft: 5,
   },
   backButton: {
     position: 'absolute',
