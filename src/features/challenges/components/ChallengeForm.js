@@ -12,6 +12,7 @@ const ChallengeForm = ({
   startDate,
   setStartDate,
   endDate,
+  setEndDate,
   onSubmit 
 }) => {
   return (
@@ -24,7 +25,6 @@ const ChallengeForm = ({
         placeholder="Enter challenge name"
         placeholderTextColor="#999"
       />
-      {/* condition check, DaysChallenge or HoursChallenge */}
       {type === 'days' ? (
         <DaysChallenge 
           startDate={startDate}
@@ -32,7 +32,12 @@ const ChallengeForm = ({
           endDate={endDate}
         />
       ) : (
-        <HoursChallenge />
+        <HoursChallenge 
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
       )}
 
       <SubmitButton onPress={onSubmit} />

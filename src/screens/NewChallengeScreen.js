@@ -1,21 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { addChallenge } from '../features/challenges/challengesSlice';
 import ChallengeForm from '../features/challenges/components/ChallengeForm';
 import { calculateEndDate, formatDate } from '../features/challenges/utils/dateUtils';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const NewChallengeScreen = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const [challengeName, setChallengeName] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(calculateEndDate(new Date()));
-  //destructure type property from route.params. Use ?. optional chaining to safely check if type is undefined --> assign default value 'days' if type is not provided, so that it will not throw an error in edge cases. See line 11-13 in HomeScreen.
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
   const type = route.params?.type || 'days';
 
   useEffect(() => {
-    setEndDate(calculateEndDate(startDate));
-  }, [startDate]);
+    if (type === 'days') {
+      setEndDate(calculateEndDate(startDate));
+    }
+  }, [startDate, type]);
+
+  const onStartDateChange = (event, selectedDate) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+    }
+  };
+
+  const onEndDateChange = (event, selectedDate) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndDate(selectedDate);
+    }
+  };
 
   // reset form data
   const resetForm = () => {
@@ -44,20 +62,20 @@ const NewChallengeScreen = ({ route, navigation }) => {
 
   // create a new challenge
   const createChallenge = () => {
-    const challengeData = type === 'days'
-      ? { 
-          type, 
-          challengeName, 
-          // Convert dates to ISO strings before dispatching, serialize data
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-        }
-      : { 
-          type, 
-          challengeName, 
-          totalHours: 100 
-        };
-    //dispatch will trigger persistence
+    const challengeData = {
+      type,
+      challengeName,
+      startDate: startDate ? startDate.toISOString() : null,
+      endDate: endDate ? endDate.toISOString() : null,
+    };
+
+    // Add totalHours property if the type is 'hours'
+    if (type === 'hours') {
+      challengeData.totalHours = 100;
+    }
+    // Now challengeData contains all the necessary properties
+    console.log(challengeData);
+
     dispatch(addChallenge(challengeData));
     showSuccessAlert(challengeData);
   };
@@ -73,15 +91,15 @@ const NewChallengeScreen = ({ route, navigation }) => {
       return;
     }
 
-    // Show confirmation alert
+    // Show confirmation alert with dates for both challenge types
     Alert.alert(
       "Challenge Details",
       `Please confirm your challenge details:
       
 Type: ${type === 'days' ? '100 Days' : '100 Hours'} Challenge
-Name: ${challengeName}${type === 'days' ? `
+Name: ${challengeName}
 Start Date: ${formatDate(startDate)}
-End Date: ${formatDate(endDate)}` : ''}`,
+End Date: ${formatDate(endDate)}`,
       [
         {
           text: "Cancel",
@@ -106,7 +124,6 @@ End Date: ${formatDate(endDate)}` : ''}`,
         <Text style={styles.header}>
           Start Your {type === 'days' ? '100 Days' : '100 Hours'} Challenge
         </Text>
-         {/* give custom props for ChallengeForm components. pass data and callbacks to ChallengeForm*/}
         <ChallengeForm 
           type={type}
           challengeName={challengeName}
@@ -114,6 +131,7 @@ End Date: ${formatDate(endDate)}` : ''}`,
           startDate={startDate}
           setStartDate={setStartDate}
           endDate={endDate}
+          setEndDate={setEndDate}
           onSubmit={handleStartChallenge}
         />
       </ScrollView>
@@ -136,6 +154,18 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 30,
     textAlign: 'center',
+  },
+  dateButton: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 
