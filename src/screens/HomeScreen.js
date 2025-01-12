@@ -6,7 +6,6 @@ import ChallengeCard from '../features/challenges/components/ChallengeCard';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  //access persist data from store
   const challenges = useSelector(state => state.challenges.items);
 
   const handleChallengePress = (challengeType) => {
@@ -40,7 +39,9 @@ const HomeScreen = () => {
         <View style={styles.challengesSection}>
           <Text style={styles.sectionTitle}>Check-in Challenge</Text>
           {challenges.map((challenge, index) => (
-            <ChallengeCard key={index} challenge={challenge} />
+            <TouchableOpacity key={index} onPress={() => navigation.navigate('ChallengeDetail', { challenge })}>
+              <ChallengeCard challenge={challenge} />
+            </TouchableOpacity>
           ))}
         </View>
       )}

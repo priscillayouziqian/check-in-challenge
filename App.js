@@ -7,6 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import HomeScreen from './src/screens/HomeScreen';
 import NewChallengeScreen from './src/screens/NewChallengeScreen';
+import ChallengeDetailScreen from './src/screens/ChallengeDetailScreen';
 import 'react-native-gesture-handler';
 import { TamaguiProvider, Theme } from 'tamagui'
 import config from './tamagui.config'
@@ -53,6 +54,14 @@ export default function App() {
                         <Text style={styles.backButtonText}>←</Text>
                       </TouchableOpacity>
                     ),
+                  })}
+                />
+                <Drawer.Screen 
+                  name="ChallengeDetail" 
+                  component={ChallengeDetailScreen}
+                  options={({ route }) => ({ 
+                    title: route.params?.challenge?.challengeName || 'Challenge Details',
+                    drawerItemStyle: styles.hiddenDrawerItem,
                   })}
                 />
               </Drawer.Navigator>
