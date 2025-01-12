@@ -8,6 +8,7 @@ import { store, persistor } from './src/store/store';
 import HomeScreen from './src/screens/HomeScreen';
 import NewChallengeScreen from './src/screens/NewChallengeScreen';
 import ChallengeDetailScreen from './src/screens/ChallengeDetailScreen';
+import CompletedChallengesScreen from './src/screens/CompletedChallengesScreen';
 import 'react-native-gesture-handler';
 import { TamaguiProvider, Theme } from 'tamagui'
 import config from './tamagui.config'
@@ -37,7 +38,14 @@ export default function App() {
                   name="Home" 
                   component={HomeScreen}
                   options={{
-                    title: 'Challenge Home',
+                    title: 'Home',
+                  }}
+                />
+                <Drawer.Screen 
+                  name="CompletedChallenges" 
+                  component={CompletedChallengesScreen}
+                  options={{
+                    title: 'Completed Challenges'
                   }}
                 />
                 <Drawer.Screen 

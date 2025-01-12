@@ -6,7 +6,10 @@ import ChallengeCard from '../features/challenges/components/ChallengeCard';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const challenges = useSelector(state => state.challenges.items);
+  // Get only active challenges (completedDays < 100)
+  const activeChallenges = useSelector(state => 
+    state.challenges.items.filter(challenge => challenge.completedDays < 100)
+  );
 
   const handleChallengePress = (challengeType) => {
     navigation.navigate('NewChallenge', { type: challengeType });
@@ -34,11 +37,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* scrollable section to display existing challenge. JSX with .map*/}
-      {challenges.length > 0 && (
+      {activeChallenges.length > 0 && (
         <View style={styles.challengesSection}>
-          <Text style={styles.sectionTitle}>Check-in Challenge</Text>
-          {challenges.map((challenge) => (
+          <Text style={styles.sectionTitle}>Active Challenges</Text>
+          {activeChallenges.map((challenge) => (
             <TouchableOpacity 
               key={challenge.id} 
               onPress={() => navigation.navigate('ChallengeDetail', { challengeId: challenge.id })}

@@ -1,17 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { calculateDaysCompleted } from '../utils/dateUtils';
 
 const ChallengeCard = ({ challenge }) => {
   const getProgressText = () => {
-    if (challenge.type === 'days') {
-      const today = new Date();
-      const start = new Date(challenge.startDate);
-      
-      const validDaysCompleted = calculateDaysCompleted(today, start);
-      return `${validDaysCompleted} of 100`;
-    }
-    return '0 of 100';
+    //show actual progress from Redux state instead of calculating from dates
+    return `${challenge.completedDays} of 100`;
   };
 
   return (

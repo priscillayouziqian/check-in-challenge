@@ -62,6 +62,20 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
       challengeId,
       completedDays: newCompletedDays
     }));
+
+    // Show congratulatory message when reaching 100
+    if (newCompletedDays === 100) {
+      Alert.alert(
+        "🎉 Congratulations! 🎉",
+        `You've successfully completed your ${challenge.type} challenge: "${challenge.challengeName}"!\n\nThis is a remarkable achievement. Keep up the great work!`,
+        [
+          {
+            text: "Thank you!",
+            style: "default"
+          }
+        ]
+      );
+    }
   };
 
   if (!challenge) {
