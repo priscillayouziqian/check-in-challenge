@@ -1,51 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { formatDate } from '../features/challenges/utils/dateUtils';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateChallengeProgress, deleteChallenge } from '../features/challenges/challengesSlice';
+import { CommonActions } from '@react-navigation/native';
 
 const ChallengeDetailScreen = ({ route, navigation }) => {
-  const { challenge } = route.params;
+  const { challengeId } = route.params;
+  const dispatch = useDispatch();
   
-  // State to track completed days
-  const [completedDays, setCompletedDays] = useState(0);
+  // Get the challenge directly from Redux store using the ID
+  const challenge = useSelector(state => 
+    state.challenges.items.find(item => item.id === challengeId)
+  );
 
+  // If challenge doesn't exist, navigate to Home
   useEffect(() => {
-    // Calculate completed days based on the challenge type and start date
-    const calculateCompletedDays = () => {
-      if (challenge.type === 'days') {
-        return Math.floor((new Date() - new Date(challenge.startDate)) / (1000 * 60 * 60 * 24));
-      } else if (challenge.type === 'hours') {
-        // Assuming hours are tracked similarly, adjust as necessary
-        return Math.floor((new Date() - new Date(challenge.startDate)) / (1000 * 60 * 60));
-      }
-      return 0;
-    };
+    if (!challenge) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        })
+      );
+    }
+  }, [challenge, navigation]);
 
-    setCompletedDays(calculateCompletedDays());
-  }, [challenge.startDate, challenge.type]);
-
-  // Create array of 100 items for the progress icons
-  const progressIcons = Array(100).fill(null);
-  
-  // Function to toggle completion status
-  const toggleCompletion = (index) => {
-    setCompletedDays((prevCompletedDays) => {
-      // Check if the icon is already completed
-      if (prevCompletedDays > index) {
-        // If already completed, decrement the count
-        return prevCompletedDays - 1;
-      } else {
-        // If not completed, increment the count
-        return prevCompletedDays + 1;
-      }
-    });
+  // Function to handle challenge deletion
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Challenge",
+      "Are you sure you want to delete this challenge? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            console.log(`Challenge "${challenge.challengeName}" (ID: ${challengeId}) has been deleted`);
+            dispatch(deleteChallenge(challengeId));
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })
+            );
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
+
+  // Function to toggle completion status and update Redux directly
+  const toggleCompletion = (index) => {
+    const newCompletedDays = challenge.completedDays > index ? index : index + 1;
+    dispatch(updateChallengeProgress({
+      challengeId,
+      completedDays: newCompletedDays
+    }));
+  };
+
+  if (!challenge) {
+    return null;
+  }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
+          <Icon
+            name="trash"
+            type="font-awesome"
+            color="#FF4444"
+            size={24}
+          />
         </TouchableOpacity>
         <Image 
           source={require('../assets/logo.png')}
@@ -66,12 +101,12 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
       <View style={styles.progressContainer}>
         <Text style={styles.progressTitle}>Progress Tracker</Text>
         <View style={styles.iconGrid}>
-          {progressIcons.map((_, index) => (
+          {Array(100).fill(null).map((_, index) => (
             <Icon
-              key={index}
-              name={index < completedDays ? 'check-circle' : 'circle-o'}
+              key={`${challengeId}-${index}`}
+              name={index < challenge.completedDays ? 'check-circle' : 'circle-o'}
               type="font-awesome"
-              color={index < completedDays ? '#4A90E2' : '#ddd'}
+              color={index < challenge.completedDays ? '#4A90E2' : '#ddd'}
               size={24}
               containerStyle={styles.icon}
               onPress={() => toggleCompletion(index)}
@@ -79,7 +114,7 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
           ))}
         </View>
         <Badge
-          value={`${completedDays}/${progressIcons.length} ${challenge.type}`}
+          value={`${challenge.completedDays}/100 ${challenge.type}`}
           status="success"
           containerStyle={styles.badgeContainer}
           badgeStyle={styles.badge}
@@ -175,6 +210,13 @@ const styles = StyleSheet.create({
     color: '#4A90E2',
     fontSize: 24,
   },
+  deleteButton: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+    padding: 8,
+    zIndex: 1
+  }
 });
 
 export default ChallengeDetailScreen; 

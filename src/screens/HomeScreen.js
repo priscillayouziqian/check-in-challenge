@@ -38,8 +38,11 @@ const HomeScreen = () => {
       {challenges.length > 0 && (
         <View style={styles.challengesSection}>
           <Text style={styles.sectionTitle}>Check-in Challenge</Text>
-          {challenges.map((challenge, index) => (
-            <TouchableOpacity key={index} onPress={() => navigation.navigate('ChallengeDetail', { challenge })}>
+          {challenges.map((challenge) => (
+            <TouchableOpacity 
+              key={challenge.id} 
+              onPress={() => navigation.navigate('ChallengeDetail', { challengeId: challenge.id })}
+            >
               <ChallengeCard challenge={challenge} />
             </TouchableOpacity>
           ))}
