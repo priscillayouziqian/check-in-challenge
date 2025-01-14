@@ -9,6 +9,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import NewChallengeScreen from './src/screens/NewChallengeScreen';
 import ChallengeDetailScreen from './src/screens/ChallengeDetailScreen';
 import CompletedChallengesScreen from './src/screens/CompletedChallengesScreen';
+import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { TamaguiProvider, Theme } from 'tamagui'
 import config from './tamagui.config'
@@ -39,13 +40,29 @@ export default function App() {
                   component={HomeScreen}
                   options={{
                     title: 'Home',
+                    drawerIcon: ({ focused, color }) => (
+                      <Icon
+                        name="home"
+                        type="font-awesome"
+                        size={24}
+                        color={color}
+                      />
+                    ),
                   }}
                 />
                 <Drawer.Screen 
                   name="CompletedChallenges" 
                   component={CompletedChallengesScreen}
                   options={{
-                    title: 'Completed Challenges'
+                    title: 'Completed Challenges',
+                    drawerIcon: ({ focused, color }) => (
+                      <Icon
+                        name="trophy"
+                        type="font-awesome"
+                        size={24}
+                        color={color}
+                      />
+                    ),
                   }}
                 />
                 <Drawer.Screen 
