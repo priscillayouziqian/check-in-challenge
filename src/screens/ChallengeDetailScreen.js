@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { formatDate } from '../features/challenges/utils/dateUtils';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateChallengeProgress, deleteChallenge } from '../features/challenges/challengesSlice';
 import { CommonActions } from '@react-navigation/native';
+import * as MediaLibrary from 'expo-media-library';
+import ViewShot from "react-native-view-shot";
 
 const ChallengeDetailScreen = ({ route, navigation }) => {
   const { challengeId } = route.params;
   const dispatch = useDispatch();
+  const viewShotRef = useRef();
   
   // Get the challenge directly from Redux store using the ID
   const challenge = useSelector(state => 
@@ -78,65 +81,151 @@ const ChallengeDetailScreen = ({ route, navigation }) => {
     }
   };
 
+  // Helper function to check and request permissions
+  const checkPermissions = async () => {
+    const { status: existingStatus } = await MediaLibrary.getPermissionsAsync();
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      return status;
+    }
+    
+    return existingStatus;
+  };
+
+  // Helper function to capture screenshot
+  const captureScreenshot = async () => {
+    const uri = await viewShotRef.current.capture({
+      format: "jpg",
+      quality: 0.8,
+      result: "tmpfile"
+    });
+    console.log('Screenshot captured:', uri);
+    return uri;
+  };
+
+  // Helper function to save screenshot
+  const saveScreenshot = async (uri) => {
+    try {
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      console.log('Asset created:', asset);
+      Alert.alert("Success!", "Screenshot saved to your photos.");
+    } catch (error) {
+      console.log('Save error:', error);
+      throw error;
+    }
+  };
+
+  // Main screenshot function
+  const handleScreenshot = async () => {
+    try {
+      const permissionStatus = await checkPermissions();
+      
+      if (permissionStatus === 'granted') {
+        const uri = await captureScreenshot();
+        
+        // Show confirmation before saving
+        Alert.alert(
+          "Save Screenshot",
+          "Save this screenshot to your photo library?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel"
+            },
+            {
+              text: "Save",
+              onPress: async () => {
+                try {
+                  await saveScreenshot(uri);
+                } catch (error) {
+                  Alert.alert("Error", "Failed to save screenshot. Please try again.");
+                }
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Permission Required",
+          "Please allow access to your photo library to save screenshots."
+        );
+      }
+    } catch (error) {
+      console.log('Screenshot error:', error);
+      Alert.alert("Error", "Failed to save screenshot. Please try again.");
+    }
+  };
+
   if (!challenge) {
     return null;
   }
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-          <Icon
-            name="trash"
-            type="font-awesome"
-            color="#FF4444"
-            size={24}
-          />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>{challenge.challengeName}</Text>
-          <View style={styles.dateContainer}>
-            <View style={styles.dateItem}>
-              <Text style={styles.dateLabel}>Start Date</Text>
-              <Text style={styles.dateText}>
-                {formatDate(new Date(challenge.startDate))}
-              </Text>
-            </View>
-            <View style={styles.dateItem}>
-              <Text style={styles.dateLabel}>End Date</Text>
-              <Text style={styles.dateText}>
-                {formatDate(new Date(challenge.endDate))}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressTitle}>Progress Tracker</Text>
-        <View style={styles.iconGrid}>
-          {Array(100).fill(null).map((_, index) => (
+      <ViewShot ref={viewShotRef} style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
             <Icon
-              key={`${challengeId}-${index}`}
-              name={index < challenge.completedDays ? 'check-circle' : 'circle-o'}
+              name="trash"
               type="font-awesome"
-              color={index < challenge.completedDays ? '#4A90E2' : '#ddd'}
+              color="#FF4444"
               size={24}
-              containerStyle={styles.icon}
-              onPress={() => toggleCompletion(index)}
             />
-          ))}
-        </View>
-        <View style={styles.progressBadgeContainer}>
-          <View style={styles.progressBadge}>
-            <Text style={styles.progressCount}>{challenge.completedDays}</Text>
-            <Text style={styles.progressTotal}>/100 {challenge.type}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleScreenshot} style={styles.screenshotButton}>
+            <Icon
+              name="camera"
+              type="font-awesome"
+              color="#4A90E2"
+              size={24}
+            />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>{challenge.challengeName}</Text>
+            <View style={styles.dateContainer}>
+              <View style={styles.dateItem}>
+                <Text style={styles.dateLabel}>Start Date</Text>
+                <Text style={styles.dateText}>
+                  {formatDate(new Date(challenge.startDate))}
+                </Text>
+              </View>
+              <View style={styles.dateItem}>
+                <Text style={styles.dateLabel}>End Date</Text>
+                <Text style={styles.dateText}>
+                  {formatDate(new Date(challenge.endDate))}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
-      </View>
+
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressTitle}>Progress Tracker</Text>
+          <View style={styles.iconGrid}>
+            {Array(100).fill(null).map((_, index) => (
+              <Icon
+                key={`${challengeId}-${index}`}
+                name={index < challenge.completedDays ? 'check-circle' : 'circle-o'}
+                type="font-awesome"
+                color={index < challenge.completedDays ? '#4A90E2' : '#ddd'}
+                size={24}
+                containerStyle={styles.icon}
+                onPress={() => toggleCompletion(index)}
+              />
+            ))}
+          </View>
+          <View style={styles.progressBadgeContainer}>
+            <View style={styles.progressBadge}>
+              <Text style={styles.progressCount}>{challenge.completedDays}</Text>
+              <Text style={styles.progressTotal}>/100 {challenge.type}</Text>
+            </View>
+          </View>
+        </View>
+      </ViewShot>
     </ScrollView>
   );
 };
@@ -265,7 +354,31 @@ const styles = StyleSheet.create({
     top: 15,
     padding: 8,
     zIndex: 1
-  }
+  },
+  screenshotButton: {
+    position: 'absolute',
+    right: 60, // Position it to the left of the delete button
+    top: 15,
+    padding: 8,
+    zIndex: 1
+  },
+  watermark: {
+    backgroundColor: '#4A90E2',
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  watermarkTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  watermarkCredit: {
+    color: '#fff',
+    fontSize: 12,
+    opacity: 0.9,
+  },
 });
 
 export default ChallengeDetailScreen; 
