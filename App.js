@@ -9,6 +9,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import NewChallengeScreen from './src/screens/NewChallengeScreen';
 import ChallengeDetailScreen from './src/screens/ChallengeDetailScreen';
 import CompletedChallengesScreen from './src/screens/CompletedChallengesScreen';
+import ShareAppScreen from './src/screens/ShareAppScreen';
 import { Icon } from 'react-native-elements';
 import 'react-native-gesture-handler';
 import { TamaguiProvider, Theme } from 'tamagui'
@@ -58,6 +59,21 @@ export default function App() {
                     drawerIcon: ({ focused, color }) => (
                       <Icon
                         name="trophy"
+                        type="font-awesome"
+                        size={24}
+                        color={color}
+                      />
+                    ),
+                  }}
+                />
+                <Drawer.Screen 
+                  name="ShareApp" 
+                  component={ShareAppScreen}
+                  options={{
+                    title: 'Share the App',
+                    drawerIcon: ({ focused, color }) => (
+                      <Icon
+                        name="share-alt"
                         type="font-awesome"
                         size={24}
                         color={color}
